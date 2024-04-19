@@ -77,8 +77,9 @@ app.post("/register", async(req, res) =>{
     res.status(500).json({ message: 'Server error' });
   }
 
+});
 
-  app.post("/verify-otp", async (req, res) => {
+app.post("/verify-otp", async (req, res) => {
     try {
         const { userId, otp } = req.body;
 
@@ -116,8 +117,44 @@ app.post("/register", async(req, res) =>{
 });
 
 
-    
 
+
+
+
+
+
+
+
+app.post("/addDetails", async (req, res) => {
+    try {
+        const { userId, age, location, workDetails } = req.body;
+
+        // Find the user by userId
+        const user = await User.findById(userId);
+
+        // Check if the user exists
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if the user is verified
+        if (!user.isVerified) {
+            return res.status(400).json({ message: 'User is not verified' });
+        }
+
+        // Update user details
+        user.age = age;
+        user.location = location;
+        user.workDetails = workDetails;
+
+        await user.save();
+
+        res.json({ message: 'User details updated successfully', user: user });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 
