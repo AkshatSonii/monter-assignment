@@ -5,6 +5,7 @@ const connectDB = require("./config/db");
 const dotenv = require("dotenv");
 const User = require("./models/userModel");
 const Otp = require("./models/otpModel");
+const generateToken = require("./config/generateToken");
 
 
 dotenv.config();
@@ -158,13 +159,36 @@ app.post("/addDetails", async (req, res) => {
 });
 
 
+app.post("/login", async(req, res) => {
+    try{
+        const { email, password } = req.body;
+
+        const user = await User.findOne({ email });
+
+        if (user && user.password === md5(password)) {
+            res.json({
+            _id: user._id,
+            email: user.email,
+            isVerified : user.isVerified,
+            age : user.age,
+            location: user.location,
+            workDetails : user.workDetails,
+            token: generateToken(user._id),
+            });
+        } else {
+            res.status(401).json({ message: 'Incorrect emial or password' });
+        }
+    } catch(err){
+        console.log(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 
 
 
-
-
-
-
+app.get("/details", async(req, res) =>{
+    
+})
 
 
 const PORT = process.env.PORT;
